@@ -23,7 +23,7 @@ public class MaskOrderStream {
 
         KStream<String, OrderMessage> maskedOrderStream
                 = builder.stream("t.commodity.order", Consumed.with(stringSerde, orderSerde))
-                         .mapValues(new CommodityStreamUtil()::maskCreditCard);  // as maskCreditCard method
+                         .mapValues(CommodityStreamUtil::maskCreditCard);  // as maskCreditCard method
                                                    // removed static keyword just for try i make like this
         maskedOrderStream.to("t.commodity.order-masked", Produced.with(stringSerde, orderSerde));
         maskedOrderStream.print(Printed.<String, OrderMessage>toSysOut().withLabel("Masked Order Stream"));
