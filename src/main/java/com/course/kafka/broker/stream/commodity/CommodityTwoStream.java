@@ -10,10 +10,11 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
-//@Configuration
-public class CommodityOneStream {
+@Configuration
+public class CommodityTwoStream {
 
     @Bean
     public KStream<String, OrderMessage> kstreamCommodityTreading(StreamsBuilder builder) {
@@ -26,20 +27,29 @@ public class CommodityOneStream {
                  = builder.stream("t.commodity.order", Consumed.with(stringSerde,orderSerde))
                           .mapValues(CommodityStreamUtil::maskCreditCard);
 
-         // first sink stream to pattern make order item (total = price * quantity)
-         KStream<String, OrderPatternMessage> patternStream
-                      = maskedOrderStream.mapValues(CommodityStreamUtil::mapToOrderPattern);
+// .branch()  return array as in our case with 2 columns   0 and 1
+         KStream<String, OrderPatternMessage>[] patternStream
+                      = maskedOrderStream.mapValues(CommodityStreamUtil::mapToOrderPattern)
+                                         .branch(CommodityStreamUtil.isPlastic(),(k,v) -> true);
 
-         patternStream.to("t.commodity.pattern-one", Produced.with(stringSerde, orderPatternSerde));
+         int plasticIndex = 0;
+         int nonPlasticIndex = 1;
 
-         // use filter for selecting  large quantity
+         //as above we get returned  KStream []  so here we are passing the index value to fetch the data and put in Topic
+        patternStream[plasticIndex].to("t.commodity.pattern-two.plastic", Produced.with(stringSerde, orderPatternSerde));
+        patternStream[nonPlasticIndex].to("t.commodity.pattern-two.notplastic", Produced.with(stringSerde, orderPatternSerde));
+
+
+         //using filter() and filterNot() together
         KStream<String,OrderRewardMessage> rewardStream
                 = maskedOrderStream.filter(CommodityStreamUtil.isLargeQuantity())
+                                   .filterNot(CommodityStreamUtil.isCheap())
                                    .mapValues(CommodityStreamUtil::mapToOrderReward);
-        rewardStream.to("t.commodity.reward-one", Produced.with(stringSerde, orderRewardSerde));
+        rewardStream.to("t.commodity.reward-two", Produced.with(stringSerde, orderRewardSerde));
 
-        // sink/send stream to storage without any change
-        maskedOrderStream.to("t.commodity.storage-one", Produced.with(stringSerde, orderSerde));
+        //sink stream to storage topic
+       KStream<String,OrderMessage> storageStream = maskedOrderStream.selectKey(CommodityStreamUtil.generateStorageKey());
+       storageStream.to("t.commodity.storage-two", Produced.with(stringSerde, orderSerde));
 
         return maskedOrderStream;
     }
