@@ -64,7 +64,7 @@ public class CommodityStreamUtil {
     public static KeyValueMapper<String, OrderMessage, String> generateStorageKey() {
         return (key, value) -> Base64.getEncoder().encodeToString(value.getOrderNumber().getBytes());
     }
-
+//  <String, OrderMessage, KeyValue<String, OrderRewardMessage>>    means  <original key, original value, new key-value>
     public static KeyValueMapper<String, OrderMessage, KeyValue<String, OrderRewardMessage>> mapToOrderRewardChangeKey() {
         return (key, value) -> KeyValue.pair(value.getOrderLocation(), mapToOrderReward(value));
     }

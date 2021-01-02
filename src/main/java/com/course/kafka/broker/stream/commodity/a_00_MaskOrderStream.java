@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 //@Configuration
-public class MaskOrderStream {
+public class a_00_MaskOrderStream {
 
     @Bean
     public KStream<String, OrderMessage> kstreamCommodityTrading(StreamsBuilder builder) {
