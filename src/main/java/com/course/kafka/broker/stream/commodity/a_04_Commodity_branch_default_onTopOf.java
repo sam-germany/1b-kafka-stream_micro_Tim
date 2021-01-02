@@ -9,15 +9,12 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.support.KafkaStreamBrancher;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 //@Configuration
-public class a_05_CommodityFiveStream {
-    private static final Logger LOG = LoggerFactory.getLogger(a_05_CommodityFiveStream.class);
+public class a_04_Commodity_branch_default_onTopOf {
 
     @Bean
     public KStream<String, OrderMessage> kstreamCommodityTreading(StreamsBuilder builder) {
@@ -26,16 +23,16 @@ public class a_05_CommodityFiveStream {
          var orderPatternSerde = new JsonSerde<>(OrderPatternMessage.class);
          var orderRewardSerde = new JsonSerde<>(OrderRewardMessage.class);
 
-         KStream<String,OrderMessage> maskedOrderStream22
+         KStream<String,OrderMessage> maskedOrderStream
                  = builder.stream("t.commodity.order", Consumed.with(stringSerde,orderSerde))
                           .mapValues(CommodityStreamUtil::maskCreditCard);
 
 //video 88  to understand this method just go to "CommodityTwoStream" class and see the same method in simple form written
          final var branchProducer = Produced.with(stringSerde, orderPatternSerde);
          new KafkaStreamBrancher<String, OrderPatternMessage>()
-                .branch(CommodityStreamUtil.isPlastic(), x -> x.to("t.commodity.pattern-five.plastic", branchProducer))
-                .defaultBranch(x -> x.to("t.commodity.pattern-five.notplastic", branchProducer))
-                .onTopOf(maskedOrderStream22.mapValues(CommodityStreamUtil::mapToOrderPattern));
+                .branch(CommodityStreamUtil.isPlastic(), x -> x.to("t.commodity.pattern-four.plastic", branchProducer))
+                .defaultBranch(x -> x.to("t.commodity.pattern-four.notplastic", branchProducer))
+                .onTopOf(maskedOrderStream.mapValues(CommodityStreamUtil::mapToOrderPattern));
 /*Note: easy to understand, we are creating  a predefined class object "KafkaStreamBranch"  it is specially designed for
 splitting Data, here first   .onTopOf() method will be executed first eventhough it is written at end, 3 steps are their
 step 1)here first we are fetching the Stream data by  .onTopOc(maskedOrderStream....)  and in this method and convert
@@ -47,26 +44,15 @@ step 3) .defaultBranch()  as in the .branch() will take the data as per Predicat
 
 
          //using filter() and filterNot() together
-        KStream<String, OrderRewardMessage> rewardStream = maskedOrderStream22.filter(CommodityStreamUtil.isLargeQuantity())
+        KStream<String, OrderRewardMessage> rewardStream = maskedOrderStream.filter(CommodityStreamUtil.isLargeQuantity())
                 .filterNot(CommodityStreamUtil.isCheap()).map(CommodityStreamUtil.mapToOrderRewardChangeKey());
-        rewardStream.to("t.commodity.reward-five", Produced.with(stringSerde, orderRewardSerde));
+        rewardStream.to("t.commodity.reward-four", Produced.with(stringSerde, orderRewardSerde));
 
         //sink stream to storage topic
-        KStream<String, OrderMessage> storageStream = maskedOrderStream22.selectKey(CommodityStreamUtil.generateStorageKey());
-        storageStream.to("t.commodity.storage-five", Produced.with(stringSerde, orderSerde));
+        KStream<String, OrderMessage> storageStream = maskedOrderStream.selectKey(CommodityStreamUtil.generateStorageKey());
+        storageStream.to("t.commodity.storage-four", Produced.with(stringSerde, orderSerde));
 
-        // send stream data for fraud detention (video 89) , here we define the logic that any location
-        // that starts with "C"  then this filter call will be triggered
-        maskedOrderStream22.filter((k,v) -> v.getOrderLocation()
-                                           .toUpperCase()
-                                           .startsWith("C"))
-                                           .foreach((k,v) -> this.reportFraud22(v));
 
-        return maskedOrderStream22;
+        return maskedOrderStream;
     }
-
-    private void reportFraud22(OrderMessage v) {
-        LOG.info("Reporting fraud {}", v);
-    }
-
 }

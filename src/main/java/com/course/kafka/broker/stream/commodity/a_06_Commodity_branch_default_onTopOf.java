@@ -17,8 +17,8 @@ import org.springframework.kafka.support.KafkaStreamBrancher;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 //@Configuration
-public class a_06_CommoditySixStream {
-    private static final Logger LOG = LoggerFactory.getLogger(a_06_CommoditySixStream.class);
+public class a_06_Commodity_branch_default_onTopOf {
+    private static final Logger LOG = LoggerFactory.getLogger(a_06_Commodity_branch_default_onTopOf.class);
 
     @Bean
     public KStream<String, OrderMessage> kstreamCommodityTreading(StreamsBuilder builder) {

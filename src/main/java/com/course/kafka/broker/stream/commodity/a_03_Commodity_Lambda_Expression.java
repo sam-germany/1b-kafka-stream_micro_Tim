@@ -14,7 +14,7 @@ import org.springframework.kafka.support.KafkaStreamBrancher;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 //@Configuration
-public class a_03_CommodityThreeStream {
+public class a_03_Commodity_Lambda_Expression {
 
     @Bean
     public KStream<String, OrderMessage> kstreamCommodityTreading(StreamsBuilder builder) {
