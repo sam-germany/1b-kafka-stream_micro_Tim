@@ -9,14 +9,15 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.apache.kafka.streams.kstream.Predicate;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-//@Configuration
-public class A_04_Feedback_groupByKey_count_video_95 {
+@Configuration
+public class A_06_Feedback_groupByKey_count_video_95 {
     private static final Set<String> BAD_WORDS = Set.of("angry", "sad", "bad");
     private static final Set<String> GOOD_WORDS = Set.of("happy", "good", "helpful");
 
@@ -30,11 +31,16 @@ public class A_04_Feedback_groupByKey_count_video_95 {
         var feedbackStreams = sourceStream.flatMap(splitWords22())
                                                               .branch(isGoodWord22(), isBadWord22());
 
-        feedbackStreams[0].to("t.commodity.feedback-four-good");
-        feedbackStreams[0].groupByKey().count().toStream().to("t.commodity.feedback-four-good-count");
+        feedbackStreams[0].to("t.commodity.feedback-five-good");
+        feedbackStreams[0].groupByKey().count().toStream().to("t.commodity.feedback-five-good-count");
 
-        feedbackStreams[1].to("t.commodity.feedback-four-bad");
-        feedbackStreams[1].groupByKey().count().toStream().to("t.commodity.feedback-four-bad-count");
+        feedbackStreams[1].to("t.commodity.feedback-five-bad");
+        feedbackStreams[1].groupByKey().count().toStream().to("t.commodity.feedback-five-bad-count");
+
+
+// getting total count of all good-words, bad-words, every time a word goes in at 0th index will be counted
+        feedbackStreams[0].groupBy((k,v) -> v).count().toStream().to("t.commodity.feedback-six-good-count-word");
+        feedbackStreams[1].groupBy((k,v) -> v).count().toStream().to("t.commodity.feedback-six-bad-count-word");
 
         return sourceStream;
     }
@@ -67,9 +73,6 @@ this part need to understand
 .count()        <-- it is a KTable specific method here the result is stored in KTable and after
                     that it count the values, null key or null value will be ignored and it return
                     Long data type
-
-
-
  */
 
 

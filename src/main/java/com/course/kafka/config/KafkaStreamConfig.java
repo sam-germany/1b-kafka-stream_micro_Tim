@@ -28,6 +28,8 @@ public class KafkaStreamConfig {
         props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
 
+       System.out.println(Serdes.String().getClass().getName()+"-------");
+
     return new KafkaStreamsConfiguration(props);
 }
 
