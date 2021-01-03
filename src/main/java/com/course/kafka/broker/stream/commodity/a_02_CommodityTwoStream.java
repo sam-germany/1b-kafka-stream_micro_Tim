@@ -29,7 +29,7 @@ public class a_02_CommodityTwoStream {
 // .branch()  return array as in our case with 2 columns   0 and 1
          KStream<String, OrderPatternMessage>[] patternStream
                       = maskedOrderStream.mapValues(CommodityStreamUtil::mapToOrderPattern)
-                                         .branch(CommodityStreamUtil.isPlastic(),(k,v) -> true);
+                                         .branch(CommodityStreamUtil.isPlastic(),(k, v) -> true);
 
          int plasticIndex = 0;
          int nonPlasticIndex = 1;

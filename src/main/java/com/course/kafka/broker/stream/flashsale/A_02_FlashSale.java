@@ -7,24 +7,34 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Printed;
+import org.apache.kafka.streams.kstream.Produced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
-@Configuration
-public class a_01_FlashSale {
-    private static final Logger LOG = LoggerFactory.getLogger(a_01_FlashSale.class);
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+//  (video 102)
+//@Configuration
+public class A_02_FlashSale {
+    private static final Logger LOG = LoggerFactory.getLogger(A_02_FlashSale.class);
 
     @Bean
     public KStream<String, String> kstreamFlashSaleVote(StreamsBuilder builder) {
         var stringSerde = Serdes.String();
         var flashSaleVoteSerde = new JsonSerde<>(FlashSaleVoteMessage.class);
 
+        var voteStart = LocalDateTime.of(LocalDate.now(), LocalTime.of(9,0));
+        var voteEnd = LocalDateTime.of(LocalDate.now(), LocalTime.of(10,0));
+
         var flashSaleVoteStream
                 = builder.stream("t.commodity.flashsale.vote", Consumed.with(stringSerde, flashSaleVoteSerde))
-                        .map((key, value) -> KeyValue.pair(value.getCustomerId(), value.getItemName()));
+                         .transformValues(()-> new A_02_ValueTransformer(voteStart, voteEnd)) //<-- see video 102
+                         .filter((key, transformedValue) -> transformedValue != null)            // to understand this line
+                         .map((key, value) -> KeyValue.pair(value.getCustomerId(), value.getItemName()));
 
         flashSaleVoteStream.print(Printed.<String, String>toSysOut().withLabel("Stream---------"));
 
@@ -35,12 +45,12 @@ public class a_01_FlashSale {
                .groupBy((user, votedItem) -> KeyValue.pair(votedItem, votedItem))
                .count()
                 .toStream()
-               .print(Printed.<String, Long>toSysOut().withLabel("Stream--+++++++++++-"));
-          //   .to("t.commodity.flashsale.vote-one-result", Produced.with(stringSerde, Serdes.Long()));
+
+             .to("t.commodity.flashsale.vote-two-result", Produced.with(stringSerde, Serdes.Long()));
 
         return flashSaleVoteStream;
     }
-}
+}// must watch this whole (video 99) to understand this login till end see this   (time 13.30)
 /*(1)
 var flashSaleVoteStream = builder.stream("t.commodity.flashsale.vote", Consumed.with(stringSerde, flashSaleVoteSerde));
 
