@@ -9,14 +9,13 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.apache.kafka.streams.kstream.Predicate;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Configuration
+//@Configuration
 public class A_06_Feedback_groupByKey_count_video_95 {
     private static final Set<String> BAD_WORDS = Set.of("angry", "sad", "bad");
     private static final Set<String> GOOD_WORDS = Set.of("happy", "good", "helpful");
