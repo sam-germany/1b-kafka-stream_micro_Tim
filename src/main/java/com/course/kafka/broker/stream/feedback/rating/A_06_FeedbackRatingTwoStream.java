@@ -9,11 +9,10 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.Stores;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 // video 104
-@Configuration
+//@Configuration
 public class A_06_FeedbackRatingTwoStream {
 
     @Bean
