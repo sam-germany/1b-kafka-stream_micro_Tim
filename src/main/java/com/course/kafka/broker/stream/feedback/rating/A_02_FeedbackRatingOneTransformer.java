@@ -30,9 +30,15 @@ public class A_02_FeedbackRatingOneTransformer implements ValueTransformer<Feedb
                       //we are creating new Object as    "new A_01_FeedbackRatingOneStoreValue()" if this object is already
                       // their with some data then we are fetching the data here at this init() method call
     @Override
-    public FeedbackRatingOneMessage transform(FeedbackMessage feedbackMessage) {
+    public FeedbackRatingOneMessage transform(FeedbackMessage feedbackMessage) {  // in the FeedbackRatingOne class
+                                  //we are having feedbackStream, in this Stream we are consuming topic with datatype
+                                  // FeedbackMessage so form their we are getting this as argument
+
+        // as calculation is based on  "location" so we are checking that perviously that location already exists or not
+        // if location exists then fetch the old data and add to new if not exists then just create a dummy object for it
         var storeValue = Optional.ofNullable(ratingStateStore.get(feedbackMessage.getLocation()))
                                                             .orElse(new A_01_FeedbackRatingOneStoreValue());
+
         // update new store
         var newSumRating = storeValue.getSumRating() + feedbackMessage.getRating(); // here we are adding   old + new
         storeValue.setSumRating(newSumRating);       // here we are setting   the added value as new value

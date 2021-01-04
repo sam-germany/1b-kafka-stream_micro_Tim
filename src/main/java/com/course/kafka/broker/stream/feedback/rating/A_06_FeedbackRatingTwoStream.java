@@ -1,7 +1,7 @@
 package com.course.kafka.broker.stream.feedback.rating;
 
 import com.course.kafka.broker.message.FeedbackMessage;
-import com.course.kafka.broker.message.FeedbackRatingOneMessage;
+import com.course.kafka.broker.message.FeedbackRatingTwoMessage;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -9,36 +9,38 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.Stores;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
-//@Configuration
-public class A_03_FeedbackRatingOneStream {
+// video 104
+@Configuration
+public class A_06_FeedbackRatingTwoStream {
 
     @Bean
     public KStream<String, FeedbackMessage> kstreamFeedbackRating(StreamsBuilder builder) {
         var  stringSerde = Serdes.String();     // key are   "location", "feedback", rating", "feedbackDataTime"
         var feedbackSerde = new JsonSerde<>(FeedbackMessage.class);
-        var feedbackRatingOneSerde = new JsonSerde<>(FeedbackRatingOneMessage.class);
-        var feedbackRatingOneStoreValueSerde = new JsonSerde<>(A_01_FeedbackRatingOneStoreValue.class);
+        var feedbackRatingTwoSerde = new JsonSerde<>(FeedbackRatingTwoMessage.class);
+        var feedbackRatingTwoStoreValueSerde = new JsonSerde<>(A_04_FeedbackRatingTwoStoreValue.class);
 
         var feedbackStream
                 = builder.stream("t.commodity.feedback", Consumed.with(stringSerde,feedbackSerde));
 
-        var feedbackRatingStateStoreName = "feedbackRatingOneStateStore";
+        var feedbackRatingStateStoreName = "feedbackRatingTwoStateStore";
         var storeSupplier = Stores.inMemoryKeyValueStore(feedbackRatingStateStoreName);
         var storeBuilder
-                 = Stores.keyValueStoreBuilder(storeSupplier, stringSerde,feedbackRatingOneStoreValueSerde);
+                 = Stores.keyValueStoreBuilder(storeSupplier, stringSerde,feedbackRatingTwoStoreValueSerde);
 
         builder.addStateStore(storeBuilder);
 
-        feedbackStream.transformValues(() -> new A_02_FeedbackRatingOneTransformer(feedbackRatingStateStoreName), feedbackRatingStateStoreName)
-                      .to("t.commodity.feedback.rating-one", Produced.with(stringSerde,feedbackRatingOneSerde));
+        feedbackStream.transformValues(() -> new A_05_FeedbackRatingTwoTransformer(feedbackRatingStateStoreName), feedbackRatingStateStoreName)
+                      .to("t.commodity.feedback.rating-two", Produced.with(stringSerde,feedbackRatingTwoSerde));
 
         return  feedbackStream;
     }
 }
-/*the main point is at line 25  var feedbackStream  we are receiving the data FeedbackMessage and later we are adding
-old and new data and producing the new Average and sending to a new topic
+/*the main point is at line 25  var feedbackStream  we are receiving the data and later we are adding old and new data
+and producing the new Average and sending to a new topic
 (1)
 var feedbackRatingStateStoreName = "feedbackRatingOneStateStore";     <- here we are defining a name in the Store, with this
               name our data object is saved in the Store, when we want to call it then we have to use this name again
