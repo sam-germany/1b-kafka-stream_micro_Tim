@@ -13,8 +13,7 @@ public class InventoryTimestampExtractor22 implements TimestampExtractor {
  //       System.out.println(inventoryMessage.getTransactionTime()+"--#########");
 //        System.out.println(record.timestamp()+"+++++++++++");
 
-        return inventoryMessage != null ? LocalDateTimeUtil22.toEpochTimestamp22(inventoryMessage.getTransactionTime())
-                : record.timestamp();
+return inventoryMessage != null ? LocalDateTimeUtil22.toEpochTimestamp22(inventoryMessage.getTransactionTime())  : record.timestamp();
     }
 }
 /*

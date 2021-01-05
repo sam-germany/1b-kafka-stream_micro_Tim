@@ -26,7 +26,13 @@ public class A_04_InventoryFourStream_TimestampExtractor {
 
         return inventoryStream;
     }
-
 }
+
+/*
+
+see the video from 108  and also see the InventoryTimestampExtractor22 class  their i explain the
+logic difference
+
+ */
 
 
