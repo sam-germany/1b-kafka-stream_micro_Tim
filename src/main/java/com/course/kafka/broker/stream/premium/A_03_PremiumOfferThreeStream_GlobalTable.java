@@ -10,13 +10,12 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 import java.util.List;
 
 // video 123    see the diagram in the copy
-@Configuration
+//@Configuration
 public class A_03_PremiumOfferThreeStream_GlobalTable {
 
     @Bean
@@ -62,4 +61,9 @@ as before this method the key=purchaseNumber , this key is coming from the kakfa
 so after this method key=username only, the value which was before it is same
 
 Note: joining  from  KStream to KTable  in outerJoin is not alloweed
+
+Note:  GlobalTable is not same as  GTable see the  video 123  at the end he gave the clear explanation
+the main point is as in GTable we can update the data as we want so no issue with it, normally for updating we
+are using GTable
+But GlobalTable data once we have entered we are not alloweed to update it, this is the big difference
  */
