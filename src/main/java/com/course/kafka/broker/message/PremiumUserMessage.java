@@ -6,6 +6,8 @@ public class PremiumUserMessage {
 
 	private String username;
 
+
+
 	public String getLevel() {
 		return level;
 	}

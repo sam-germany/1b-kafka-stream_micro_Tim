@@ -8,6 +8,10 @@ public class PremiumPurchaseMessage {
 
 	private String username;
 
+
+
+
+
 	public String getItem() {
 		return item;
 	}
